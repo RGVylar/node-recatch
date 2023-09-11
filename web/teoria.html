@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Especializándose en Node.js</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      padding: 20px;
+    }
+    h1 {
+      color: #007bff;
+    }
+    p {
+      margin-bottom: 20px;
+    }
+    pre {
+      background-color: #000; /* Fondo negro */
+      padding: 10px;
+      border: 1px solid #ccc;
+      max-width: 1000px; /* Altura máxima deseada */
+      overflow-x: auto; /* Agregar desbordamiento vertical con barra de desplazamiento */
+    }
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      color: cyan; /* Texto cian */
+    }
+    .btn-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .btn-container button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .btn-container button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="btn-container">
+    <!-- Botón para volver a la página principal -->
+    <button id="Volver" style="background-color: #007bff;">Volver a la página principal</button>
+  </div>
+  <h1>Especializándose en Node.js</h1>
+  <p><strong>Aprendiendo Node.js</strong></p>
+  <p><em>No es multi-hilo</em></p>
+
+  <p><strong>1. ¿Qué es Node.js?</strong></p>
+  <p>Node.js es un entorno de ejecución de JavaScript que te permite escribir código tanto en el lado del cliente como en el del servidor.</p>
+
+  <p><strong>2. Utiliza el motor V8 de Google</strong></p>
+  <p>Node.js utiliza el motor V8 de Google, que es eficiente y rápido. Este motor es el mismo que utiliza Google Chrome.</p>
+
+  <p><strong>3. Event Loop</strong></p>
+  <p>Node.js se basa en un modelo de programación no bloqueante y orientado a eventos. Esto significa que puede manejar múltiples tareas sin bloquear el hilo principal de ejecución. El Event Loop es fundamental para esta arquitectura y permite una alta concurrencia en aplicaciones Node.js.</p>
+
+  <p><strong>4. Módulos y NPM</strong></p>
+  <p>Node.js cuenta con un sistema de módulos que te permite organizar y reutilizar código de manera efectiva. Además, puedes utilizar el administrador de paquetes NPM (Node Package Manager) para instalar y gestionar bibliotecas y dependencias de terceros en tus proyectos Node.js.</p>
+
+  <p><strong>5. API de Red</strong></p>
+  <p>Node.js es conocido por su capacidad para construir aplicaciones de red rápidas y escalables. Puedes crear servidores web, API RESTful y aplicaciones en tiempo real de manera eficiente utilizando las API de red de Node.js.</p>
+
+  <p><strong>6. Usos en Tiempo Real</strong></p>
+  <p>Se utiliza para aplicaciones en tiempo real como chats en vivo, juegos en línea y aplicaciones de colaboración en tiempo real. La capacidad de manejar múltiples conexiones de manera eficiente lo hace ideal para este tipo de aplicaciones.</p>
+
+  <p><strong>7. Comunidad Activa</strong></p>
+  <p>Node.js tiene una comunidad activa que proporciona soporte y contribuye a su desarrollo continuo. Puedes encontrar una amplia variedad de bibliotecas y recursos disponibles gracias a esta comunidad.</p>
+ 
+  <p><strong>8. GlobalThis</strong></p>
+  <p>Es una variable global que utilizamos para por ejemplo usar el console.log que es una propiedad de esta variable</p>
+  <hr>
+  <p><strong>WebSocket</strong></p>
+  <p>WebSocket es un protocolo de comunicación bidireccional que permite la comunicación en tiempo real entre el servidor y el cliente. En Node.js, puedes usar bibliotecas como "ws" para implementar WebSocket en tu aplicación. Esto es especialmente útil para aplicaciones que requieren actualizaciones en tiempo real, como chats y juegos.</p>
+
+  <p><strong>Streams en Node.js</strong></p>
+  <p>Los streams en Node.js son objetos que permiten la lectura o escritura de datos en trozos, en lugar de cargar todo el contenido en memoria de una vez. Se utilizan para operaciones como leer y escribir archivos o transmitir datos a través de una red. Los streams son una parte fundamental de la eficiencia y el rendimiento de Node.js.</p>
+  
+  <p><strong>Sistema de modulos CommonJS version vieja</strong></p>
+  <p>Contenido de archivo functions/enviarContenido.js</p>
+  <pre><code>
+// Función para manejar la lectura de archivos y el envío de contenido a través de WebSocket
+async function enviarContenido(res, archivo, rutaWebSocket) {
+    try {
+    const data = await fs.readFile(archivo, 'utf8');
+    // Enviar el contenido del archivo al cliente a través de WebSocket
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+        client.send(data);
+        }
+    });
+    res.send(data);
+    } catch (err) {
+    console.error('Error al leer el archivo:', err);
+    res.status(500).send('Error interno del servidor');
+    }
+}
+
+module.exports = enviarContenido
+  </code></pre>
+  <p>Como llamamos a la funcion en app.js</p>
+  <pre><code>
+const enviarContenido = require('./functions/enviarContenido');
+
+app.get('/', (req, res) => {
+    enviarContenido(res, 'app.html', '/archivo');
+  });
+</code></pre>
+<hr>
+
+<p><strong>Sistema de modulos CommonJS version NUEVA</strong></p>
+<p>.js por defecto utiliza CommonJS<br>.mjs para utilizar ES<br>.js por defecto utiliza CommonJS</p>
+<p>Contenido de archivo functions/enviarContenido.mjs</p>
+<pre><code>
+//FORMA NUEVA
+// Función para manejar la lectura de archivos y el envío de contenido a través de WebSocket
+    
+import { promises as fs } from 'fs';
+import WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
+const wss = new WebSocketServer({ noServer: true });
+export async function enviarContenido(res, archivo, rutaWebSocket) {
+    try {
+        const data = await fs.readFile(archivo, 'utf8');
+        // Enviar el contenido del archivo al cliente a través de WebSocket
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(data);
+            }
+        });
+        res.send(data);
+    } catch (err) {
+        console.error('Error al leer el archivo:', err);
+        res.status(500).send('Error interno del servidor');
+    }
+}    
+</code></pre>
+<p>Como llamamos a la funcion en app.mjs</p>
+<pre><code>
+// Importa la función enviarContenido desde el archivo enviarContenido.mjs
+import { enviarContenido } from './cjs/enviarContenido.mjs';
+
+app.get('/', (req, res) => {
+  enviarContenido(res, 'app.html', '/archivo');
+});
+</code></pre>
+<hr>
+  <p><strong>Ejemplo de Streams en Node.js:</strong></p>
+  <pre><code>
+const fs = require('fs');
+
+const stream = fs.createReadStream('archivo.txt', 'utf8');
+
+stream.on('data', chunk => {
+  console.log('Chunk de datos:', chunk);
+});
+
+stream.on('end', () => {
+  console.log('Lectura de archivo completa');
+});
+
+stream.on('error', err => {
+  console.error('Error al leer el archivo:', err);
+});
+  </code></pre>
+  <hr>
+  <p><strong>Middlewares en Express.js</strong></p>
+  <p>En el mundo de Node.js, Express.js es un marco de aplicaciones web ampliamente utilizado. Utiliza middlewares, que son funciones que se ejecutan en medio del ciclo de una solicitud y respuesta. Esto te permite realizar tareas como el registro de solicitudes, la autenticación y la gestión de sesiones de manera sencilla.</p>
+
+  <p><strong>Diferencia entre Callbacks, Promises y async/await en Node.js</strong></p>
+  <p>Los callbacks se ejecutan al terminar una operación asíncrona.</p>
+  <pre><code>
+  // Ejemplo de lectura de archivo con callback
+  const fs = require('fs');
+  
+  fs.readFile('archivo.txt', 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error al leer el archivo:', err);
+      return;
+    }
+    console.log('Contenido del archivo:', data);
+  });
+  </code></pre>
+  <hr>  
+  <p>Las Promises son objetos que representan un valor en el futuro y permiten un manejo más limpio y estructurado de operaciones asíncronas.</p>
+  <pre><code>
+  // Ejemplo de lectura de archivo con Promises
+  const fs = require('fs').promises;
+  
+  fs.readFile('archivo.txt', 'utf8')
+    .then(data => {
+      console.log('Contenido del archivo:', data);
+    })
+    .catch(err => {
+      console.error('Error al leer el archivo:', err);
+    });
+  </code></pre>
+  <hr>  
+  <p>async/await se utiliza para escribir código asincrónico de manera más legible, especialmente en situaciones donde necesitas hacer varias llamadas asincrónicas en secuencia.</p>
+  <pre><code>
+  // Ejemplo de lectura de archivo con async/await
+  const fs = require('fs').promises;
+  
+  async function leerArchivo() {
+    try {
+      const data = await fs.readFile('archivo.txt', 'utf8');
+      console.log('Contenido del archivo:', data);
+    } catch (err) {
+      console.error('Error al leer el archivo:', err);
+    }
+  }
+  
+  leerArchivo();
+  </code></pre>
+  <hr>  
+  <p><strong>Cuándo utilizar cada uno:</strong></p>
+  <ul>
+    <li>Los callbacks se utilizan en situaciones simples o cuando trabajas con código heredado.</li>
+    <li>Las Promises son útiles para manejar múltiples operaciones asíncronas en secuencia o en paralelo.</li>
+    <li>async/await se utiliza para escribir código asincrónico de manera más legible, especialmente en situaciones donde necesitas hacer varias llamadas asincrónicas en secuencia.</li>
+  </ul>
+
+  <!-- Botón para ir al inicio de la página -->
+  <div class="btn-container">
+    <button id="IrArriba">Ir arriba</button>
+  </div>
+
+  <!-- Script para manejar la acción de volver -->
+  <script>
+    document.getElementById('Volver').addEventListener('click', () => {
+      // Redirigir al usuario a la página principal
+      window.location.href = '/';
+    });
+    document.getElementById('IrArriba').addEventListener('click', () => {
+      // Ir al inicio de la página
+      window.scrollTo(0, 0);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ejecutar Script</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #007bff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #007bff;
+    }
+
+    table {
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin: 10px;
+      border-radius: 5px;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      margin-top: 5px;
+      color: #333;
+    }
+    pre {
+      background-color: #000; /* Fondo negro */
+      padding: 10px;
+      border: 1px solid #ccc;
+      color: cyan; /* Texto cian */
+      overflow-x: auto; /* Agregar desbordamiento horizontal con barra de desplazamiento */
+      overflow-y: auto; /* Agregar desbordamiento horizontal con barra de desplazamiento */
+      white-space: pre-wrap; /* Permite que el texto se ajuste automáticamente a la ventana */
+      word-break: break-all; /* Rompe las palabras largas */
+      max-height: 500px;
+    }
+    code {
+      font-family: 'Courier New', Courier, monospace;
+      color: cyan; /* Texto cian */
+      display: block; /* Muestra el texto en una línea separada */
+      margin: 0; /* Elimina el margen interior del elemento 'code' */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ejecutar Scripts</h1>
+    <table>
+      <tr>
+        <td>
+          <button id="Sonido">Ejecutar Script de Sonido</button>
+          <p>Presiona este botón para ejecutar un script de sonido.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="Imagen">Ejecutar Script de Imagen</button>
+          <p>Presiona este botón para ejecutar un script de imagen.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="OS">Ejecutar modulo Nativo OS</button>
+          <p>Presiona este botón para ejecutar un comando OS</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="FSSync">Ejecutar modulo Nativo FS Sync</button>
+          <p>Presiona este botón para ejecutar un comando FS sincronizado</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <button id="FSAsync">Ejecutar modulo Nativo FS Async</button>
+          <p>Presiona este botón para ejecutar un comando FS de forma asincrona</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <pre id="output"></pre>
+          <p>Salida de ejecución</p>
+        </td>
+      </tr>      
+      <tr>
+        <td>
+          <button id="Teoria">Ver teoria</button>
+          <p>Presiona este botón para ver la pagina de la teoria</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <script>
+    const socket = new WebSocket('ws://192.168.1.24:3000');
+    const outputElement = document.getElementById('output'); // Obtén una referencia al elemento 'output'
+
+    document.getElementById('Sonido').addEventListener('click', () => {
+      const mensaje = "ejecutar_script_sonido";
+      socket.send(mensaje);
+    });
+    document.getElementById('Imagen').addEventListener('click', () => {
+      const mensaje = "ejecutar_script_imagen";
+      socket.send(mensaje);
+    });
+    document.getElementById('OS').addEventListener('click', () => {
+      const mensaje = "ejecutar_modulo_nativo_os";
+      socket.send(mensaje);
+    });
+    document.getElementById('FSSync').addEventListener('click', () => {
+      const mensaje = "ejecutar_modulo_nativo_fs_sync";
+      socket.send(mensaje);
+    });
+    document.getElementById('FSAsync').addEventListener('click', () => {
+      const mensaje = "ejecutar_modulo_nativo_fs_async";
+      socket.send(mensaje);
+    });
+    document.getElementById('Teoria').addEventListener('click', () => {
+      // Redirigir al usuario a la URL deseada
+      window.location.href = 'http://192.168.1.24:3000/teoria';
+    });
+    
+    socket.addEventListener('message', event => {
+    const response = JSON.parse(event.data);
+
+    // Actualiza el contenido del elemento 'output'
+    outputElement.textContent = JSON.stringify(response, null, 2);
+  });
+  </script>
+</body>
+</html>
